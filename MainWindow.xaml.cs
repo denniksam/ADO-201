@@ -32,7 +32,7 @@ namespace ADO_201
             // !! Створення об'єкта не відкриває підключення
             _connection = new();
             // Головний параметр підключення - рядок підключення
-            _connection.ConnectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\_dns_\source\repos\ADO-201\ADO-201.mdf;Integrated Security=True";
+            _connection.ConnectionString = App.ConnectionString;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

@@ -1,0 +1,117 @@
+﻿<Window x:Class="ADO_201.OrmWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ADO_201"
+        mc:Ignorable="d"
+        Loaded="Window_Loaded"
+        Title="OrmWindow" Height="450" Width="800">
+    <Grid ShowGridLines="True">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Vertical"
+                    Grid.Row="0" Grid.Column="0">
+            <Label Content="Відділи" HorizontalAlignment="Center"
+                   FontSize="22" FontWeight="DemiBold"/>
+            <ListView ItemsSource="{Binding Departments}">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn
+                            Header="Id"
+                            DisplayMemberBinding="{Binding Path=Id}"/>
+                        <GridViewColumn
+                            Header="Name"
+                            DisplayMemberBinding="{Binding Path=Name}"/>
+                    </GridView>
+                </ListView.View>
+                <ListView.Resources>
+                    <Style TargetType="{x:Type ListViewItem}">
+                        <EventSetter
+                            Event="MouseDoubleClick"
+                            Handler="ListViewItem_MouseDoubleClick"/>
+                    </Style>
+                </ListView.Resources>
+            </ListView>
+        </StackPanel>
+
+        <StackPanel Orientation="Vertical"
+                    Grid.Row="0" Grid.Column="1">
+            <StackPanel Orientation="Horizontal" 
+                        HorizontalAlignment="Center">
+                <Label Content="Товари"
+                       FontSize="22" FontWeight="DemiBold"/>
+                <Button Content="+" x:Name="AddProductButton"
+                        Padding="5 1" Margin="15 0 0 0"
+                        FontSize="22" FontWeight="DemiBold"
+                        Click="AddProductButton_Click"/>
+            </StackPanel>
+            <ListView ItemsSource="{Binding Products}"
+                      ScrollViewer.VerticalScrollBarVisibility="Visible"
+                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                      MaxHeight="175">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn
+                            Header="Id"
+                            DisplayMemberBinding="{Binding Path=Id}"/>
+                        <GridViewColumn
+                            Header="Name"
+                            DisplayMemberBinding="{Binding Path=Name}"/>
+                        <GridViewColumn
+                            Header="Price"
+                            DisplayMemberBinding="{Binding Path=Price}"/>
+                        <GridViewColumn
+                            Header="Del"
+                            DisplayMemberBinding="{Binding Path=DeleteDt}"/>
+                    </GridView>
+                </ListView.View>
+                <ListView.Resources>
+                    <Style TargetType="{x:Type ListViewItem}">
+                        <EventSetter
+                            Event="MouseDoubleClick"
+                            Handler="ProductsItem_MouseDoubleClick"/>
+                    </Style>
+                </ListView.Resources>
+            </ListView>
+        </StackPanel>
+
+
+        <StackPanel Orientation="Vertical"
+                    Grid.Row="1" Grid.Column="1">
+            <Label Content="Співробітники" HorizontalAlignment="Center"
+                   FontSize="22" FontWeight="DemiBold"/>
+            <ListView ItemsSource="{Binding Managers}"
+                      ScrollViewer.VerticalScrollBarVisibility="Visible"
+                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                      MaxHeight="175">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn
+                            Header="Id"
+                            DisplayMemberBinding="{Binding Path=Id}"/>
+                        <GridViewColumn
+                            Header="Surname"
+                            DisplayMemberBinding="{Binding Path=Surname}"/>
+                        <GridViewColumn
+                            Header="Name"
+                            DisplayMemberBinding="{Binding Path=Name}"/>
+                    </GridView>
+                </ListView.View>
+                <ListView.Resources>
+                    <Style TargetType="{x:Type ListViewItem}">
+                        <EventSetter
+                            Event="MouseDoubleClick"
+                            Handler="ManagersItem_MouseDoubleClick"/>
+                    </Style>
+                </ListView.Resources>
+            </ListView>
+        </StackPanel>
+    </Grid>
+</Window>
