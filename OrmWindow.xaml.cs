@@ -25,6 +25,7 @@ namespace ADO_201
         public ObservableCollection<Entity.Department> Departments { get; set; }
         public ObservableCollection<Entity.Product> Products { get; set; }
         public ObservableCollection<Entity.Manager> Managers { get; set; }
+        public ObservableCollection<Entity.Sale> Sales { get; set; }
 
         private DepartmentCrudWindow _dialogDepartment;
         private SqlConnection _connection;
@@ -35,6 +36,7 @@ namespace ADO_201
             Departments = new();
             Managers = new();
             Products = new();
+            Sales = new();
             DataContext = this;
             _connection = new(App.ConnectionString);
             _dialogDepartment = null!;
@@ -90,6 +92,16 @@ namespace ADO_201
                                     ? null
                                     : reader.GetGuid(6)
                     });
+                }
+                reader.Close();
+                #endregion
+
+                #region Load Sales
+                cmd.CommandText = "SELECT S.* FROM Sales S";
+                reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    Sales.Add(new(reader));
                 }
                 reader.Close();
                 #endregion
@@ -209,6 +221,46 @@ namespace ADO_201
                     // MessageBox.Show(dialog.Product.Name + " " + dialog.Product.Price);
                 }
             }
+        }
+
+
+        private void SalesItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is ListViewItem item)
+            {
+                if (item.Content is Entity.Sale sale)
+                {
+                    MessageBox.Show(sale.SaleDt.ToString());
+                }
+            }
+        }
+        private void AddSaleButton_Click(object sender, RoutedEventArgs e)
+        {
+            SaleCrudWindow dialog = new(null!) { Owner = this } ;
+            if (dialog.ShowDialog() == true)
+            {
+                using SqlCommand cmd = new(
+                    $"INSERT INTO Sales(Id, ProductId, ManagerId, Quantity, SaleDt) " +
+                    $"VALUES(@id, @prod, @manager, @count, @moment)", _connection
+                );
+                cmd.Parameters.AddWithValue("@id",      dialog.Sale.Id);
+                cmd.Parameters.AddWithValue("@prod",    dialog.Sale.ProductId);
+                cmd.Parameters.AddWithValue("@manager", dialog.Sale.ManagerId);
+                cmd.Parameters.AddWithValue("@count",   dialog.Sale.Quantity);
+                cmd.Parameters.AddWithValue("@moment",  dialog.Sale.SaleDt);
+                try
+                {
+                    cmd.ExecuteNonQuery();
+                    this.Sales.Add(dialog.Sale);
+                    MessageBox.Show("Insert OK");
+                }
+                catch (Exception ex) 
+                { 
+                    MessageBox.Show("Insert Fails: " + ex.Message);
+                }
+            }
+            /* Д.З. Реалізувати задачі "Update", "Delete" для Sales
+             */
         }
     }
 }

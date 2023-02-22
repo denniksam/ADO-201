@@ -16,6 +16,7 @@
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
+        
         <StackPanel Orientation="Vertical"
                     Grid.Row="0" Grid.Column="0">
             <Label Content="Відділи" HorizontalAlignment="Center"
@@ -82,7 +83,6 @@
             </ListView>
         </StackPanel>
 
-
         <StackPanel Orientation="Vertical"
                     Grid.Row="1" Grid.Column="1">
             <Label Content="Співробітники" HorizontalAlignment="Center"
@@ -109,6 +109,41 @@
                         <EventSetter
                             Event="MouseDoubleClick"
                             Handler="ManagersItem_MouseDoubleClick"/>
+                    </Style>
+                </ListView.Resources>
+            </ListView>
+        </StackPanel>
+
+        <StackPanel Orientation="Vertical"
+                    Grid.Row="1" Grid.Column="0">
+            <StackPanel Orientation="Horizontal" 
+                        HorizontalAlignment="Center">
+                <Label Content="Продажі"
+                       FontSize="22" FontWeight="DemiBold"/>
+                <Button Content="+" x:Name="AddSaleButton"
+                        Padding="5 1" Margin="15 0 0 0"
+                        FontSize="22" FontWeight="DemiBold"
+                        Click="AddSaleButton_Click"/>
+            </StackPanel>
+            <ListView ItemsSource="{Binding Sales}"
+                      ScrollViewer.VerticalScrollBarVisibility="Visible"
+                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                      MaxHeight="175">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn
+                            Header="Дата"
+                            DisplayMemberBinding="{Binding Path=SaleDt}"/>
+                        <GridViewColumn
+                            Header="Кількість"
+                            DisplayMemberBinding="{Binding Path=Quantity}"/>
+                    </GridView>
+                </ListView.View>
+                <ListView.Resources>
+                    <Style TargetType="{x:Type ListViewItem}">
+                        <EventSetter
+                            Event="MouseDoubleClick"
+                            Handler="SalesItem_MouseDoubleClick"/>
                     </Style>
                 </ListView.Resources>
             </ListView>
