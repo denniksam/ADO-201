@@ -1,0 +1,59 @@
+﻿DAL - Data Access Layer - шар доступу до даних
+Архітектурний шар програмного забезпечення, завданням якого є 
+зниження зчеплення об'єктів шару інтерфейсу з об'єктами даних.
+
+Без DAL:
+
+Window (View)                            Entity
+cmd.CommandText = 
+"SELECT S.* FROM Sales S"; <-----------> ctor( DataReader )
+
+DAL:
+
+Window                   DAL                  Entity
+IDataApi <----------->   DataApi : IDataApi  <-----------> ctor( DataReader )
+ dataApi                 GetSales                      /
+.GetSales()	 \		"SELECT S.* FROM Sales S"         /
+		      \                                      /
+			   \      DataApiNew : IDataApi         /
+		        \	  .GetSales "SELECT S.* FROM Sales S JOIN Products P...""
+
++ зменшення зчеплення:
+   - можливість використання об'єктів DAL для інших вікон/проєктів
+   - можливість переключення вікон на інші сутності
+   - можливість розвинення за SOLID
+
+
+Контекст даних
+Як правило, у БД є велика кількість сутностей, кожна з яких особлива
+Відповідно, єдиний DAL-інтерфейс створювати недоцільно - створюються багато
+різних об'єктів для кожної із сутностей, а для їх поєднання вживається 
+концепція контексту: об'єкта-контейнера, що вміщує всі DAL-об'єкти (DAO).
+
+Window                       DAL                            Entity
+IDataContext             DataContext : IDataContext          Entity1
+   dataContext            { Entity1Api, Entity2Api }         Entity2
+dataContext
+.Entity1Api.GetAll()
+
+----------------------- Navigation Properties ------------------------
+Навігаційні властивості - властивості (в ООП розумінні: get;set;), які
+дозволяють звертатись до сутностей, з якими пов'язана дана сутність.
+Наприклад, IdMainDep зберігає лише Id, а навігаційна властивість
+MainDep буде повертати весь об'єкт Department, що відповідає даному Id
+
+Додавання навігаційних властивостей утворює "зворотні" зв'язки сутності
+з контекстом даних для пошуку інших сутностей
+
+Manager {		<--------> DataContext { ---------> Department { 
+  Guid IdMainDep		 	Managers			    String Name
+  Department MainDep <----- Departments				List<Manager> MainMans
+}				|		}						 }
+				|
+View {Binding Path=MainDep.Name}
+
+Завдання: зробити навігаційну властивість для IdSecDep
+
+Зворотна (інверсна) навігаційна властивість - посилання на сутність 
+(сутності), які посилаються на дану сутність. У наведеному прикладі - 
+це перелік (List) працівників даного відділу

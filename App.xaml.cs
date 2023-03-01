@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ADO_201.Service;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -14,5 +15,6 @@ namespace ADO_201
     public partial class App : Application
     {
         public static readonly String ConnectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\_dns_\source\repos\ADO-201\ADO-201.mdf;Integrated Security=True";
+        internal static readonly Logger Logger = new("log.txt");
     }
 }

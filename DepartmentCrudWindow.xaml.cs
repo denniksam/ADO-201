@@ -32,14 +32,15 @@ namespace ADO_201
         {
             if(Department is null)  // режим додавання (Create)
             {
+                Department = new();
                 DeleteButton.IsEnabled = false;
             }
             else  // режими редагування чи видалення (U / D)
             {
-                IdView.Text = Department.Id.ToString();
                 NameView.Text = Department.Name;
                 DeleteButton.IsEnabled = true;
             }
+            IdView.Text = Department.Id.ToString();                
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)

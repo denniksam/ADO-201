@@ -1,5 +1,8 @@
-﻿using System;
+﻿using ADO_201.DAL;
+using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +18,27 @@ namespace ADO_201.Entity
         public override string ToString()
         {
             return Id.ToString()[..5] + "... " + Name;
+        }
+        public Department()
+        {
+            Id = Guid.NewGuid();
+            Name = null!;
+        }
+        public Department(SqlDataReader reader)
+        {
+            Id = reader.GetGuid("Id");
+            Name = reader.GetString("Name");
+        }
+
+        ////////////// Navigation Properties (Inverse) /////////////
+
+        internal DataContext? dataContext;
+        public List<Entity.Manager>? MainManagers {
+            get => dataContext?
+                    .Managers
+                    .GetAll()
+                    .Where(m => m.IdMainDep == this.Id)
+                    .ToList();
         }
     }
 }
