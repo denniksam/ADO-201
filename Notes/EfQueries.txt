@@ -1,0 +1,83 @@
+Запити з поєднанням та групуванням
+
+Найкращий товар (за продажами за сьогодні)
+Products					 Sales
+Name						 Cnt, ProductId
+        \ поєднання      / групування
+				Tmp
+				ProductId - SUM(Cnt)
+
+var query = efContext.Sales
+                .Where(s => s.SaleDt.Date == DateTime.Today)
+                .GroupBy(s => s.ProductId);  
+Працює, для ітерування можна використати цикл
+foreach (IGrouping<Guid, Sale> grp in query)
+{
+    LogBlock.Text += grp.Key.ToString() + " " +  // grp.Key - Guid - s.ProductId
+        grp.Count() + "\n";  // grp - це колекція Sale, що має однаковий grp.Key (ProductId)
+}
+
++ Поєднання 
+var query2 = efContext.Sales
+    .Where(s => s.SaleDt.Date == DateTime.Today)
+    .GroupBy(s => s.ProductId)   // Після .GroupBy утворюється "колекція" IGrouping<Guid, Sale> grp
+    .Join(                       // .Join відбувається не з Sales, а з "grp"
+        efContext.Products,      // 1) з чим поєднуємо (inner) - Products
+        grp => grp.Key,          // 2) outerKey - ключ з "grp"
+        p => p.Id,               // 3) innerKey - ключ з Products (р)
+        (grp, p) => new {        // 4) resultSelector - правило за яким
+            Name = p.Name,       //     з поєднаної пари (grp, p) утворюється нова
+            Cnt = grp.Count()    //     послідовність ("колекція") - тут це новий об'єкт
+        }                        //     анонімного типу
+    );
+Не працює - виключення "запит не може бути перекладений" Either rewrite the query in a form that can be translated, 
+or switch to client evaluation explicitly by inserting a call to 'AsEnumerable', 'AsAsyncEnumerable', 'ToList', or 'ToListAsync'.
+Джерело проблеми - послідовне вживання .GroupBy та .Join
+Кожен з методів будує "правило"-ітератор для отримання результату. Послідовне застосування
+цих правил призводить некоректного SQL запиту, оскільки в SQL порядок JOIN та GROUP BY
+не можна змінювати
+
+Слідуємо рекомендації а) створюємо конверсію 'AsEnumerable'
+...
+.GroupBy(s => s.ProductId)
+.AsEnumerable()
+.Join(...)
+Інше виключення - спроба повторного відкриття DataReader для одного підключення
+AsEnumerable() - створює правило запуску запиту та перетворення його рез-тів у IEnumerable
+Імовірніше за все, що у цьому методі є щось на кшталт
+ while(Reader.Read()){ yield new Group(...) }
+іншими словами генератор працює з відкритим DataReader до кінця ітерування, 
+а наступний .Join знову звертається до БД, відкриваючи новий DataReader
+
+Слідуємо рекомендації б) створюємо конверсію 'ToList'
+...
+.GroupBy(s => s.ProductId)
+.ToList()
+.Join(...)
+Так працює, .ToList() хоч і ітерує, але повністю, закриваючи генератор yield і DataReader
+
+!! Хоча .ToList() вирішує дану проблему, він може утворити нову, пов'язану з великим
+   обсягом даних, що передється у колекцію List
+
+Кращий вихід - переробити запит. Для даної задачі це GroupJoin
+var query3 = efContext.Products
+    .GroupJoin(
+        efContext.Sales.Where(s => s.SaleDt.Date == DateTime.Today),
+        p => p.Id,
+        s => s.ProductId,
+        (p, sales) => new { 
+            Name = p.Name, 
+            Cnt = sales.Count() 
+        }
+    );
+або
+var query3 = efContext.Products
+    .GroupJoin(
+        efContext.Sales,
+        p => p.Id,
+        s => s.ProductId,
+        (p, sales) => new { 
+            Name = p.Name, 
+            Cnt = sales.Where(s => s.SaleDt.Date == DateTime.Today).Count() 
+        }
+    );

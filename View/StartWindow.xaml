@@ -18,5 +18,8 @@
         <Button x:Name="DalButton" Content="3. DAL, Data Context"
                 Margin="20 10" HorizontalContentAlignment="Left" Padding="20 5"
                 Click="DalButton_Click"/>
+        <Button x:Name="EfButton" Content="4. Entity Framework Core"
+                Margin="20 10" HorizontalContentAlignment="Left" Padding="20 5"
+                Click="EfButton_Click"/>
     </StackPanel>
 </Window>
